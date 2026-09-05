@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agendamento | Vieira's Barbershop</title>
+
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+
+    <header>
+
+        <nav>
+
+            <a href="index.html">
+                <img src="imagens/logo-branca.jpeg" alt="Logo da Vieira's Barbershop">
+            </a>
+
+            <ul>
+                <li>
+                    <a href="index.html">Serviços</a>
+                </li>
+
+                <li>
+                    <a href="agendamento.html">Agendar</a>
+                </li>
+            </ul>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        <section aria-labelledby="titulo-agendamento">
+
+            <header>
+                <h1 id="titulo-agendamento">
+                    Agende seu horário
+                </h1>
+
+                <p>
+                    Escolha os serviços, a data e o horário desejado.
+                </p>
+            </header>
+
+            <form id="form-agendamento">
+
+                <fieldset>
+
+                    <legend>Escolha os serviços</legend>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="acabamento"
+                            data-preco="15"
+                            data-duracao="10"
+                        >
+                        Acabamento — R$ 15,00 — 10 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="barba"
+                            data-preco="40"
+                            data-duracao="30"
+                        >
+                        Barba — R$ 40,00 — 30 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="degrade"
+                            data-preco="40"
+                            data-duracao="30"
+                        >
+                        Degradê — R$ 40,00 — 30 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="degrade-crianca"
+                            data-preco="40"
+                            data-duracao="30"
+                        >
+                        Degradê (criança) — R$ 40,00 — 30 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="social"
+                            data-preco="30"
+                            data-duracao="25"
+                        >
+                        Social — R$ 30,00 — 25 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="social-crianca"
+                            data-preco="30"
+                            data-duracao="25"
+                        >
+                        Social (criança) — R$ 30,00 — 25 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="navalhado"
+                            data-preco="45"
+                            data-duracao="40"
+                        >
+                        Navalhado — R$ 45,00 — 40 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="raspado"
+                            data-preco="20"
+                            data-duracao="15"
+                        >
+                        Raspado — R$ 20,00 — 15 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="sobrancelha"
+                            data-preco="15"
+                            data-duracao="10"
+                        >
+                        Sobrancelha — R$ 15,00 — 10 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="degrade-barba"
+                            data-preco="70"
+                            data-duracao="60"
+                        >
+                        Degradê + Barba — R$ 70,00 — 60 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="raspado-barba"
+                            data-preco="50"
+                            data-duracao="45"
+                        >
+                        Raspado + Barba — R$ 50,00 — 45 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="social-barba"
+                            data-preco="60"
+                            data-duracao="45"
+                        >
+                        Social + Barba — R$ 60,00 — 45 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="navalhado-sobrancelha"
+                            data-preco="55"
+                            data-duracao="45"
+                        >
+                        Navalhado + Sobrancelha — R$ 55,00 — 45 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="degrade-barba-sobrancelha"
+                            data-preco="80"
+                            data-duracao="60"
+                        >
+                        Degradê + Barba + Sobrancelha — R$ 80,00 — 60 min
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="servicos"
+                            value="social-barba-sobrancelha"
+                            data-preco="70"
+                            data-duracao="50"
+                        >
+                        Social + Barba + Sobrancelha — R$ 70,00 — 50 min
+                    </label>
+
+                </fieldset>
+
+                <fieldset>
+
+                    <legend>Escolha a data</legend>
+
+                    <label for="data">
+                        Data
+                    </label>
+
+                    <input
+                        type="date"
+                        id="data"
+                        name="data"
+                        required
+                    >
+                    <p id="mensagem-data"></p>
+
+                </fieldset>
+
+                <fieldset>
+
+                    <legend>Horários disponíveis</legend>
+
+                    <section id="horarios" aria-label="Horários disponíveis">
+
+                        <p>
+                            Escolha os serviços e a data para visualizar os horários disponíveis.
+                        </p>
+
+                    </section>
+
+                </fieldset>
+
+                <button type="submit">
+                    Continuar
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>
+            &copy; 2026 Vieira's Barbershop.
+            Todos os direitos reservados.
+        </p>
+    </footer>
+
+    <script src="JS/agendamento.js"></script>
+
+</body>
+
+</html>
