@@ -423,7 +423,7 @@ formulario.addEventListener("submit", function (event) {
             servicosSelecionados.push({
 
                 nome:
-                    servico.parentElement.textContent.trim(),
+                    servico.value,
 
                 preco:
                     Number(servico.dataset.preco),
@@ -473,20 +473,46 @@ formulario.addEventListener("submit", function (event) {
     }
 
 
-    // Mostra os dados no console
-    console.log(
-        "Serviços:",
-        servicosSelecionados
+    // Guarda os dados do agendamento
+    localStorage.setItem(
+        "agendamentoServicos",
+        JSON.stringify(servicosSelecionados)
     );
 
-    console.log(
-        "Data:",
+    localStorage.setItem(
+        "agendamentoData",
         data
     );
 
-    console.log(
-        "Horário:",
+    localStorage.setItem(
+        "agendamentoHorario",
         horarioSelecionado
     );
+
+
+    // Calcula duração e preço total
+    let duracaoTotal = 0;
+    let precoTotal = 0;
+
+    servicosSelecionados.forEach(function (servico) {
+
+        duracaoTotal += servico.duracao;
+        precoTotal += servico.preco;
+
+    });
+
+    localStorage.setItem(
+        "agendamentoDuracao",
+        duracaoTotal
+    );
+
+    localStorage.setItem(
+        "agendamentoPreco",
+        precoTotal
+    );
+
+
+    // Vai para a página de finalização
+    window.location.href = "finalizacao.html";
 
 });

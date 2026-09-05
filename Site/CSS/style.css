@@ -523,4 +523,140 @@ footer p {
 #horarios button.selecionado {
     background-color: #183B56;
     color: #FFFFFF;
+    border: 2px solid #183B56;
+    font-weight: bold;
+    transform: scale(1.03);
+    box-shadow: 0 3px 8px rgba(24, 59, 86, 0.3);
+}
+
+/* ==============================
+   RESUMO DO AGENDAMENTO
+============================== */
+
+#titulo-resumo {
+    color: #183B56;
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+}
+
+#titulo-resumo + p,
+#titulo-resumo + p + p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #EEEEEE;
+}
+
+#titulo-resumo + p strong,
+#titulo-resumo + p + p strong {
+    color: #555555;
+}
+
+#duracao-total {
+    color: #111111;
+    font-weight: bold;
+}
+
+#preco-total {
+    color: #183B56;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+/* ========================================
+   PÁGINA DE AGENDAMENTO CONFIRMADO
+======================================== */
+
+main > section[aria-labelledby="titulo-confirmacao"] {
+    width: 90%;
+    max-width: 700px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+#titulo-confirmacao {
+    color: #183B56;
+    margin-bottom: 10px;
+}
+
+main > section[aria-labelledby="titulo-confirmacao"] > header p {
+    margin-bottom: 30px;
+    color: #555555;
+}
+
+/* Caixa com todos os detalhes */
+
+main > section[aria-labelledby="titulo-confirmacao"] 
+> section[aria-labelledby="titulo-detalhes"] {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 25px;
+    text-align: left;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+#titulo-detalhes {
+    color: #183B56;
+    margin-bottom: 20px;
+}
+
+/* Informações */
+
+main > section[aria-labelledby="titulo-confirmacao"] 
+> section[aria-labelledby="titulo-detalhes"] p {
+    padding: 12px 0;
+    border-bottom: 1px solid #EEEEEE;
+}
+
+main > section[aria-labelledby="titulo-confirmacao"] 
+> section[aria-labelledby="titulo-detalhes"] p:last-child {
+    border-bottom: none;
+}
+
+main > section[aria-labelledby="titulo-confirmacao"] 
+> section[aria-labelledby="titulo-detalhes"] strong {
+    color: #183B56;
+}
+
+/* Lista de serviços */
+
+#confirmacao-servicos {
+    margin: 5px 0 15px;
+    padding-left: 25px;
+}
+
+#confirmacao-servicos li {
+    margin-bottom: 8px;
+}
+
+/* Total */
+
+#confirmacao-total {
+    color: #183B56;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+/* Botão voltar */
+
+main > section[aria-labelledby="titulo-confirmacao"] > a {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background-color: #183B56;
+    color: #FFFFFF;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+main > section[aria-labelledby="titulo-confirmacao"] > a:hover {
+    background-color: #B83232;
+    transform: translateY(-2px);
 }
