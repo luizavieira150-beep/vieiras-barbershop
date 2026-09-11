@@ -1,35 +1,155 @@
 const formulario = document.getElementById("form-agendamento");
-const servicos = document.querySelectorAll('input[name="servicos"]');
 const horarios = document.getElementById("horarios");
+
+const barbeiroId = 1; // 1 = Marcelo | 2 = Fábio
 
 const campoData = document.getElementById("data");
 const mensagemData = document.getElementById("mensagem-data");
+
+let servicos = [];
+let agendamentos = [];
+
+
+// ==========================================
+// CARREGAR SERVIÇOS DO SUPABASE
+// ==========================================
+
+async function carregarServicos() {
+
+    const { data, error } = await supabaseClient
+        .from("servicos")
+        .select("id, nome, preco, duracao");
+
+    if (error) {
+
+        console.error(
+            "Erro ao carregar serviços:",
+            error
+        );
+
+        return;
+    }
+
+    servicos = data;
+
+    const campoServicos =
+        formulario.querySelector("fieldset:first-of-type");
+
+    const legenda =
+        campoServicos.querySelector("legend");
+
+    campoServicos.innerHTML = "";
+
+    campoServicos.appendChild(legenda);
+
+    servicos.forEach(function (servico) {
+
+        const label =
+            document.createElement("label");
+
+        const input =
+            document.createElement("input");
+
+        input.type = "checkbox";
+        input.name = "servicos";
+
+        input.value = servico.id;
+
+        input.dataset.preco =
+            servico.preco;
+
+        input.dataset.duracao =
+            servico.duracao;
+
+        input.dataset.id =
+            servico.id;
+
+        label.appendChild(input);
+
+        label.appendChild(
+            document.createTextNode(
+                ` ${servico.nome} — R$ ${Number(servico.preco)
+                    .toFixed(2)
+                    .replace(".", ",")} — ${servico.duracao} min`
+            )
+        );
+
+        campoServicos.appendChild(label);
+
+        input.addEventListener(
+            "change",
+            atualizarServicos
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// BUSCAR AGENDAMENTOS
+// ==========================================
+
+async function buscarAgendamentos(data) {
+
+    const { data: dados, error } =
+        await supabaseClient
+            .from("agendamentos")
+            .select("hora_inicio, duracao")
+            .eq("data", data)
+            .eq("barbeiro_id", barbeiroId)
+            .eq("status", "agendado");
+
+    if (error) {
+
+        console.error(
+            "Erro ao buscar agendamentos:",
+            error
+        );
+
+        return [];
+
+    }
+
+    return dados;
+
+}
 
 
 // ==========================================
 // DATA MÍNIMA
 // ==========================================
 
-// Impede que o cliente escolha uma data passada
 const hoje = new Date();
 
-const ano = hoje.getFullYear();
-const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-const dia = String(hoje.getDate()).padStart(2, "0");
+const ano =
+    hoje.getFullYear();
 
-const dataAtual = `${ano}-${mes}-${dia}`;
+const mes =
+    String(hoje.getMonth() + 1)
+        .padStart(2, "0");
+
+const dia =
+    String(hoje.getDate())
+        .padStart(2, "0");
+
+const dataAtual =
+    `${ano}-${mes}-${dia}`;
 
 campoData.min = dataAtual;
 
 
 // ==========================================
-// RESUMO DOS SERVIÇOS
+// RESUMO
 // ==========================================
 
-// Cria o espaço para mostrar o resumo
-const resumo = document.createElement("section");
+const resumo =
+    document.createElement("section");
 
-resumo.setAttribute("aria-labelledby", "titulo-resumo");
+resumo.setAttribute(
+    "aria-labelledby",
+    "titulo-resumo"
+);
 
 resumo.innerHTML = `
     <h2 id="titulo-resumo">Resumo</h2>
@@ -45,13 +165,10 @@ resumo.innerHTML = `
     </p>
 `;
 
-
-// Coloca o resumo antes da escolha da data
 formulario.insertBefore(
     resumo,
     formulario.querySelector("fieldset:nth-of-type(2)")
 );
-
 
 const duracaoTotalElemento =
     document.getElementById("duracao-total");
@@ -69,32 +186,80 @@ function atualizarServicos() {
     let duracaoTotal = 0;
     let precoTotal = 0;
 
-    servicos.forEach(function (servico) {
+    const selecionados =
+        document.querySelectorAll(
+            'input[name="servicos"]:checked'
+        );
 
-        if (servico.checked) {
+    selecionados.forEach(function (servico) {
 
-            duracaoTotal += Number(servico.dataset.duracao);
+        duracaoTotal +=
+            Number(servico.dataset.duracao);
 
-            precoTotal += Number(servico.dataset.preco);
-
-        }
+        precoTotal +=
+            Number(servico.dataset.preco);
 
     });
-
 
     duracaoTotalElemento.textContent =
         `${duracaoTotal} minutos`;
 
-
     precoTotalElemento.textContent =
-        precoTotal.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL"
-        });
+        precoTotal.toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
 
-
-    // Atualiza os horários
     gerarHorarios();
+
+}
+
+
+// ==========================================
+// VERIFICAR SE HORÁRIO ESTÁ OCUPADO
+// ==========================================
+
+function horarioEstaOcupado(
+    horarioInicio,
+    duracaoServico
+) {
+
+    const [hora, minuto] =
+        horarioInicio.split(":").map(Number);
+
+    const inicioNovo =
+        hora * 60 + minuto;
+
+    const fimNovo =
+        inicioNovo + duracaoServico;
+
+
+    return agendamentos.some(function (agendamento) {
+
+        const [horaAgendada, minutoAgendado] =
+            agendamento.hora_inicio
+                .split(":")
+                .map(Number);
+
+        const inicioAgendado =
+            horaAgendada * 60 +
+            minutoAgendado;
+
+        const fimAgendado =
+            inicioAgendado +
+            Number(agendamento.duracao);
+
+
+        return (
+            inicioNovo < fimAgendado &&
+            fimNovo > inicioAgendado
+        );
+
+    });
+
 }
 
 
@@ -102,16 +267,13 @@ function atualizarServicos() {
 // GERAR HORÁRIOS
 // ==========================================
 
-function gerarHorarios() {
+async function gerarHorarios() {
 
-    // Limpa os horários anteriores
     horarios.innerHTML = "";
 
-    // Limpa o horário selecionado
     delete horarios.dataset.horarioSelecionado;
 
 
-    // Se não tiver data
     if (!campoData.value) {
 
         horarios.innerHTML = `
@@ -121,25 +283,25 @@ function gerarHorarios() {
         `;
 
         return;
+
     }
 
 
-    // Soma a duração dos serviços selecionados
     let duracaoTotal = 0;
 
-    servicos.forEach(function (servico) {
+    const selecionados =
+        document.querySelectorAll(
+            'input[name="servicos"]:checked'
+        );
 
-        if (servico.checked) {
+    selecionados.forEach(function (servico) {
 
-            duracaoTotal +=
-                Number(servico.dataset.duracao);
-
-        }
+        duracaoTotal +=
+            Number(servico.dataset.duracao);
 
     });
 
 
-    // Se nenhum serviço foi escolhido
     if (duracaoTotal === 0) {
 
         horarios.innerHTML = `
@@ -149,20 +311,26 @@ function gerarHorarios() {
         `;
 
         return;
+
     }
 
 
-    // ==========================================
-    // DESCOBRE O DIA DA SEMANA
-    // ==========================================
+    // Busca os agendamentos do dia
+    agendamentos =
+        await buscarAgendamentos(
+            campoData.value
+        );
 
-    const partes = campoData.value.split("-");
 
-    const dataEscolhida = new Date(
-        Number(partes[0]),
-        Number(partes[1]) - 1,
-        Number(partes[2])
-    );
+    const partes =
+        campoData.value.split("-");
+
+    const dataEscolhida =
+        new Date(
+            Number(partes[0]),
+            Number(partes[1]) - 1,
+            Number(partes[2])
+        );
 
     const diaDaSemana =
         dataEscolhida.getDay();
@@ -187,7 +355,7 @@ function gerarHorarios() {
     let periodos = [];
 
 
-    // Segunda-feira
+    // Segunda
     if (diaDaSemana === 1) {
 
         periodos = [
@@ -218,19 +386,17 @@ function gerarHorarios() {
 
 
     // ==========================================
-    // CRIA OS HORÁRIOS
+    // CRIAR HORÁRIOS
     // ==========================================
 
     periodos.forEach(function (periodo) {
 
-        // Horários de 30 em 30 minutos
         for (
             let horarioAtual = periodo.inicio;
             horarioAtual <= periodo.fim;
             horarioAtual += 30
         ) {
 
-            // Pela manhã, o serviço não pode passar das 12:00
             if (
                 !periodo.permitePassarDoFim &&
                 horarioAtual + duracaoTotal > periodo.fim
@@ -255,43 +421,77 @@ function gerarHorarios() {
                 String(minuto).padStart(2, "0");
 
 
-            // Cria o botão
+            const horario =
+                `${horaFormatada}:${minutoFormatado}`;
+
+
+            const ocupado =
+                horarioEstaOcupado(
+                    horario,
+                    duracaoTotal
+                );
+
+
             const botao =
                 document.createElement("button");
 
-
             botao.type = "button";
 
-
             botao.textContent =
-                `${horaFormatada}:${minutoFormatado}`;
-
+                horario;
 
             botao.dataset.horario =
-                `${horaFormatada}:${minutoFormatado}`;
+                horario;
 
 
-            // Seleciona o horário
-            botao.addEventListener("click", function () {
+            // ==================================
+            // HORÁRIO OCUPADO
+            // ==================================
 
-                document
-                    .querySelectorAll("#horarios button")
-                    .forEach(function (outroBotao) {
+            if (ocupado) {
 
-                        outroBotao.classList.remove(
+                botao.disabled = true;
+
+                botao.textContent =
+                    `${horario} - ocupado`;
+
+            } else {
+
+                // Selecionar horário
+
+                botao.addEventListener(
+                    "click",
+                    function () {
+
+                        document
+                            .querySelectorAll(
+                                "#horarios button"
+                            )
+                            .forEach(
+                                function (outroBotao) {
+
+                                    outroBotao.classList
+                                        .remove(
+                                            "selecionado"
+                                        );
+
+                                }
+                            );
+
+
+                        botao.classList.add(
                             "selecionado"
                         );
 
-                    });
 
+                        horarios.dataset
+                            .horarioSelecionado =
+                            botao.dataset.horario;
 
-                botao.classList.add("selecionado");
+                    }
+                );
 
-
-                horarios.dataset.horarioSelecionado =
-                    botao.dataset.horario;
-
-            });
+            }
 
 
             horarios.appendChild(botao);
@@ -304,132 +504,127 @@ function gerarHorarios() {
 
 
 // ==========================================
-// ALTERAÇÃO DOS SERVIÇOS
+// ALTERAÇÃO DA DATA
 // ==========================================
 
-servicos.forEach(function (servico) {
+campoData.addEventListener(
+    "change",
+    function () {
 
-    servico.addEventListener("change", function () {
+        horarios.innerHTML = "";
 
-        atualizarServicos();
-
-    });
-
-});
+        delete horarios.dataset.horarioSelecionado;
 
 
-// ==========================================
-// VERIFICAÇÃO DA DATA
-// ==========================================
+        if (!campoData.value) {
 
-campoData.addEventListener("change", function () {
+            mensagemData.textContent = "";
 
-    // Limpa os horários anteriores
-    horarios.innerHTML = "";
+            horarios.innerHTML = `
+                <p>
+                    Escolha uma data para visualizar os horários.
+                </p>
+            `;
 
-    delete horarios.dataset.horarioSelecionado;
+            return;
+
+        }
 
 
-    // Se não tiver data
-    if (!campoData.value) {
+        const partes =
+            campoData.value.split("-");
+
+
+        const dataEscolhida =
+            new Date(
+                Number(partes[0]),
+                Number(partes[1]) - 1,
+                Number(partes[2])
+            );
+
+
+        const diaDaSemana =
+            dataEscolhida.getDay();
+
 
         mensagemData.textContent = "";
 
-        horarios.innerHTML = `
-            <p>
-                Escolha uma data para visualizar os horários.
-            </p>
-        `;
 
-        return;
-    }
+        // Domingo
 
+        if (diaDaSemana === 0) {
 
-    // Cria a data escolhida sem problemas de fuso horário
-    const partes =
-        campoData.value.split("-");
+            mensagemData.textContent =
+                "A barbearia não funciona aos domingos.";
+
+            return;
+
+        }
 
 
-    const dataEscolhida = new Date(
-        Number(partes[0]),
-        Number(partes[1]) - 1,
-        Number(partes[2])
-    );
+        // Sábado
 
+        if (diaDaSemana === 6) {
 
-    const diaDaSemana =
-        dataEscolhida.getDay();
+            mensagemData.textContent =
+                "Aos sábados, o atendimento é por ordem de chegada.";
 
+            return;
 
-    mensagemData.textContent = "";
+        }
 
-
-    // ==========================================
-    // DOMINGO
-    // ==========================================
-
-    if (diaDaSemana === 0) {
 
         mensagemData.textContent =
-            "A barbearia não funciona aos domingos.";
+            "Data disponível para agendamento.";
 
-        return;
+
+        gerarHorarios();
+
     }
-
-
-    // ==========================================
-    // SÁBADO
-    // ==========================================
-
-    if (diaDaSemana === 6) {
-
-        mensagemData.textContent =
-            "Aos sábados, o atendimento é por ordem de chegada.";
-
-        return;
-    }
-
-
-    // ==========================================
-    // SEGUNDA A SEXTA
-    // ==========================================
-
-    mensagemData.textContent =
-        "Data disponível para agendamento.";
-
-
-    // Gera os horários
-    gerarHorarios();
-
-});
+);
 
 
 // ==========================================
 // ENVIO DO FORMULÁRIO
 // ==========================================
 
-formulario.addEventListener("submit", function (event) {
+formulario.addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
 
+    // ==========================================
+    // SERVIÇOS SELECIONADOS
+    // ==========================================
+
     const servicosSelecionados = [];
 
+    const selecionados =
+        document.querySelectorAll(
+            'input[name="servicos"]:checked'
+        );
 
-    servicos.forEach(function (servico) {
+    selecionados.forEach(function (servico) {
 
-        if (servico.checked) {
+        const servicoEncontrado =
+            servicos.find(function (item) {
+
+                return Number(item.id) ===
+                    Number(servico.dataset.id);
+
+            });
+
+        if (servicoEncontrado) {
 
             servicosSelecionados.push({
 
-                nome:
-                    servico.value,
+                id: Number(servicoEncontrado.id),
 
-                preco:
-                    Number(servico.dataset.preco),
+                nome: servicoEncontrado.nome,
 
-                duracao:
-                    Number(servico.dataset.duracao)
+                preco: Number(servicoEncontrado.preco),
+
+                duracao: Number(servicoEncontrado.duracao)
 
             });
 
@@ -438,7 +633,10 @@ formulario.addEventListener("submit", function (event) {
     });
 
 
-    // Verifica se escolheu serviço
+    // ==========================================
+    // VERIFICAÇÕES
+    // ==========================================
+
     if (servicosSelecionados.length === 0) {
 
         alert("Escolha pelo menos um serviço.");
@@ -447,9 +645,7 @@ formulario.addEventListener("submit", function (event) {
     }
 
 
-    // Verifica se escolheu data
-    const data =
-        campoData.value;
+    const data = campoData.value;
 
 
     if (data === "") {
@@ -460,7 +656,6 @@ formulario.addEventListener("submit", function (event) {
     }
 
 
-    // Verifica se escolheu horário
     const horarioSelecionado =
         horarios.dataset.horarioSelecionado;
 
@@ -473,7 +668,125 @@ formulario.addEventListener("submit", function (event) {
     }
 
 
-    // Guarda os dados do agendamento
+    // ==========================================
+    // DADOS DO CLIENTE
+    // ==========================================
+
+    const clienteId =
+        localStorage.getItem("clienteId");
+
+
+    if (!clienteId) {
+
+        alert("Cliente não identificado. Volte para a página inicial.");
+
+        return;
+    }
+
+
+    // ==========================================
+    // BARBEIRO
+    // ==========================================
+
+    const barbeiroID = 1;
+
+
+    // ==========================================
+    // DURAÇÃO E PREÇO TOTAL
+    // ==========================================
+
+    let duracaoTotal = 0;
+    let precoTotal = 0;
+
+
+    servicosSelecionados.forEach(function (servico) {
+
+        duracaoTotal += servico.duracao;
+
+        precoTotal += servico.preco;
+
+    });
+
+
+    // ==========================================
+    // SALVAR AGENDAMENTO
+    // ==========================================
+
+    const { data: novoAgendamento, error } =
+        await supabaseClient
+            .from("agendamentos")
+            .insert([
+                {
+                    cliente_id: Number(clienteId),
+                    barbeiro_id: barbeiroID,
+                    data: data,
+                    hora_inicio: horarioSelecionado,
+                    duracao: duracaoTotal,
+                    preco_total: precoTotal,
+                    status: "agendado"
+                }
+            ])
+            .select()
+            .single();
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao salvar agendamento:",
+            error
+        );
+
+        alert(
+            "Não foi possível realizar o agendamento."
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // SALVAR SERVIÇOS DO AGENDAMENTO
+    // ==========================================
+
+    const servicosParaSalvar =
+        servicosSelecionados.map(function (servico) {
+
+            return {
+                agendamento_id: novoAgendamento.id,
+                servico_id: servico.id,
+                preco: servico.preco,
+                duracao: servico.duracao
+            };
+
+        });
+
+
+    const { error: erroServicos } =
+        await supabaseClient
+            .from("agendamentos_servicos")
+            .insert(servicosParaSalvar);
+
+
+    if (erroServicos) {
+
+        console.error(
+            "Erro ao salvar serviços:",
+            erroServicos
+        );
+
+        alert(
+            "O agendamento foi criado, mas houve um erro ao salvar os serviços."
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // FINALIZAÇÃO
+    // ==========================================
+
     localStorage.setItem(
         "agendamentoServicos",
         JSON.stringify(servicosSelecionados)
@@ -489,18 +802,6 @@ formulario.addEventListener("submit", function (event) {
         horarioSelecionado
     );
 
-
-    // Calcula duração e preço total
-    let duracaoTotal = 0;
-    let precoTotal = 0;
-
-    servicosSelecionados.forEach(function (servico) {
-
-        duracaoTotal += servico.duracao;
-        precoTotal += servico.preco;
-
-    });
-
     localStorage.setItem(
         "agendamentoDuracao",
         duracaoTotal
@@ -511,8 +812,20 @@ formulario.addEventListener("submit", function (event) {
         precoTotal
     );
 
+    localStorage.setItem(
+        "agendamentoId",
+        novoAgendamento.id
+    );
 
-    // Vai para a página de finalização
-    window.location.href = "finalizacao.html";
+
+    window.location.href =
+        "finalizacao.html";
 
 });
+
+
+// ==========================================
+// INICIAR
+// ==========================================
+
+carregarServicos();
