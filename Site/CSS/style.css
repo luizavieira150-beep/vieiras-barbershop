@@ -660,3 +660,111 @@ main > section[aria-labelledby="titulo-confirmacao"] > a:hover {
     background-color: #B83232;
     transform: translateY(-2px);
 }
+/* ========================================
+   PÁGINA MEUS AGENDAMENTOS
+======================================== */
+
+.secao-agendamentos {
+    margin-bottom: 40px;
+}
+
+.secao-agendamentos h2 {
+    color: #183B56;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+#lista-proximos,
+#lista-historico {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.card-agendamento {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-agendamento h3 {
+    color: #183B56;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.card-agendamento p {
+    color: #555555;
+    margin-bottom: 8px;
+}
+
+.card-agendamento strong {
+    color: #111111;
+}
+
+.card-agendamento .valor-agendamento {
+    color: #183B56;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.status-agendamento {
+    display: inline-block;
+    padding: 5px 12px;
+    margin: 10px 0;
+    border-radius: 20px;
+    background-color: #E5F1E8;
+    color: #27633A;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.status-cancelado {
+    background-color: #FCE8E8;
+    color: #A52828;
+}
+
+.status-concluido {
+    background-color: #E5EAF5;
+    color: #183B56;
+}
+
+.botao-cancelar {
+    margin-top: 15px;
+    background-color: #B83232;
+}
+
+.botao-cancelar:hover {
+    background-color: #922626;
+}
+
+.mensagem-vazia {
+    grid-column: 1 / -1;
+    padding: 25px;
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 10px;
+    color: #666666;
+    text-align: center;
+}
+
+/* Responsividade */
+
+@media (max-width: 600px) {
+
+    #lista-proximos,
+    #lista-historico {
+        grid-template-columns: 1fr;
+    }
+
+    .card-agendamento {
+        padding: 20px;
+    }
+
+    .secao-agendamentos h2 {
+        font-size: 1.3rem;
+    }
+}
